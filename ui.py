@@ -1,7 +1,8 @@
+import streamlit as st
 from models import Census, RentalRate, LaborFTE, OverallCensus
 import pandas as pd
 
-
+# Place your main function here, but remove the print statements and return the dataframes instead of saving them to CSV
 def main():
     # Set initial parameters
     start_date = '2023-07-01'
@@ -396,11 +397,30 @@ def main():
     # Append to the all_fte_projections DataFrame
     fte_projection = labor_fte.get_fte_projection()
     all_fte_projections = all_fte_projections._append(fte_projection)
+if __name__ == '__main__':
+    main()
 
-    # Save to CSV after the loop
-    all_occupancy_projections.to_csv("all_occupancy_projections.csv", index=False)
-    all_rate_projections.to_csv("all_rate_projections.csv", index=False)
-    all_fte_projections.to_csv("all_fte_projections.csv", index=False)
+def run_model():
+    # your code here
+    return all_occupancy_projections, all_rate_projections, all_fte_projections
+
+def main():
+    st.title('My Model UI')
+
+    # Add a button to run the model
+    if st.button('Run Model'):
+        # Run the model and get the results
+        all_occupancy_projections, all_rate_projections, all_fte_projections = run_model()
+
+        # Display the results
+        st.subheader('Occupancy Projections')
+        st.dataframe(all_occupancy_projections)
+
+        st.subheader('Rate Projections')
+        st.dataframe(all_rate_projections)
+
+        st.subheader('FTE Projections')
+        st.dataframe(all_fte_projections)
 
 if __name__ == '__main__':
     main()
