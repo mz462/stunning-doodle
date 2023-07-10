@@ -21,6 +21,7 @@ class Product:
         projection['vacant_units'] = self.total_units  # Initially all units are vacant
         projection['resident_count'] = 0  # Initially no residents
         projection['reached_occupancy_cap'] = False  # Initially, occupancy cap is not reached
+        
         return projection
 
     def populate_projection(self):
@@ -95,13 +96,26 @@ class LaborFTE:
         for month in range(len(self.fte_projection)):
             for role, pattern in self.staffing_patterns.items():
                 if pattern['type'] == 'fixed':
-                    self.fte_projection.loc[self.fte_projection.index[month], role] = pattern['value']
-                elif pattern['type'] == 'ratio':
-                    # Here, we assume 'product_types' to be either 'AL' or 'MC'
-                    occupied_units = sum([self.products[product_type].get_projection().loc[self.fte_projection.index[month], 'occupied_units']
-                                          for product_type in pattern['product_types']])
-                    self.fte_projection.loc[self.fte_projection.index[month], role] = occupied_units / pattern['value']
-                # Add more conditions here for other staffing patterns as necessary
+                    if pattern['trigger'] is not None:
+                        if pattern['trigger']['type'] == 'occupancy':
+                            occupied_units = sum([self.products[product_type].get_projection().loc[self.fte_projection.index[month], 'occupied_units']
+                                                for product_type in pattern['trigger'].get('ratio_based_on', [])])
+                            self.fte_projection.loc[self.fte_projection.index[month], role] = pattern['minimum_FTE'] + (pattern['trigger']['change_in_FTE'] if occupied_units >= pattern['trigger']['value'] else 0)
+                        elif pattern['trigger']['type'] == 'occupied_units':
+                            occupied_units = sum([self.products[product_type].get_projection().loc[self.fte_projection.index[month], 'occupied_units']
+                                                for product_type in pattern['trigger'].get('ratio_based_on', [])])
+                            self.fte_projection.loc[self.fte_projection.index[month], role] = pattern['minimum_FTE'] + (pattern['trigger']['change_in_FTE'] if occupied_units >= pattern['trigger']['value'] else 0)
+                    else:
+                        self.fte_projection.loc[self.fte_projection.index[month], role] = pattern['minimum_FTE']
 
+                elif pattern['type'] == 'ratio' and pattern['ratio_based_on']:
+                    occupied_units = sum([self.products[product_type].get_projection().loc[self.fte_projection.index[month], 'occupied_units']
+                                        for product_type in pattern['ratio_based_on']])
+                    self.fte_projection.loc[self.fte_projection.index[month], role] = occupied_units / pattern['minimum_FTE']
+
+                # More conditions can be added as per requirement
+
+
+                    
     def get_fte_projection(self):
         return self.fte_projection
