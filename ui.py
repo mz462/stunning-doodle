@@ -2,7 +2,6 @@ import streamlit as st
 from models import Census, RentalRate, LaborFTE, OverallCensus
 import pandas as pd
 
-# Place your main function here, but remove the print statements and return the dataframes instead of saving them to CSV
 def main():
     # Set initial parameters
     start_date = '2023-07-01'
@@ -372,39 +371,35 @@ def main():
 
     # ...
 
-    # Create empty DataFrames to store all projections
-    all_occupancy_projections = pd.DataFrame()
-    all_rate_projections = pd.DataFrame()
-    all_fte_projections = pd.DataFrame()
+    def run_model():
+            # Create empty DataFrames to store all projections
+            all_occupancy_projections = pd.DataFrame()
+            all_rate_projections = pd.DataFrame()
+            all_fte_projections = pd.DataFrame()
 
-    for census_type in ['IL', 'AL', 'MC']:
-        print(f"\n{census_type} Occupancy Projection:")
-        occupancy_projection = censuses[census_type].get_projection()
-        print(occupancy_projection.head())
-        
-        # Append to the all_occupancy_projections DataFrame
-        occupancy_projection['census_type'] = census_type  # Add a column to distinguish the census type
-        all_occupancy_projections = all_occupancy_projections._append(occupancy_projection, ignore_index = True)
+            for census_type in ['IL', 'AL', 'MC']:
+                print(f"\n{census_type} Occupancy Projection:")
+                occupancy_projection = censuses[census_type].get_projection()
+                print(occupancy_projection.head())
+                
+                # Append to the all_occupancy_projections DataFrame
+                occupancy_projection['census_type'] = census_type  # Add a column to distinguish the census type
+                all_occupancy_projections = all_occupancy_projections.append(occupancy_projection, ignore_index = True)
 
-        print(f"\n{census_type} Rate Projection:")
-        rate_projection = rental_rates[census_type].get_rate_projection()
-        print(rate_projection.head())
+                print(f"\n{census_type} Rate Projection:")
+                rate_projection = rental_rates[census_type].get_rate_projection()
+                print(rate_projection.head())
 
-        # Append to the all_rate_projections DataFrame
-        rate_projection['census_type'] = census_type  # Add a column to distinguish the census type
-        all_rate_projections = all_rate_projections._append(rate_projection, ignore_index = True)
+                # Append to the all_rate_projections DataFrame
+                rate_projection['census_type'] = census_type  # Add a column to distinguish the census type
+                all_rate_projections = all_rate_projections.append(rate_projection, ignore_index = True)
 
-    # Append to the all_fte_projections DataFrame
-    fte_projection = labor_fte.get_fte_projection()
-    all_fte_projections = all_fte_projections._append(fte_projection)
-if __name__ == '__main__':
-    main()
+            # Append to the all_fte_projections DataFrame
+            fte_projection = labor_fte.get_fte_projection()
+            all_fte_projections = all_fte_projections.append(fte_projection)
 
-def run_model():
-    # your code here
-    return all_occupancy_projections, all_rate_projections, all_fte_projections
+            return all_occupancy_projections, all_rate_projections, all_fte_projections
 
-def main():
     st.title('My Model UI')
 
     # Add a button to run the model
