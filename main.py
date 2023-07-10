@@ -1,4 +1,4 @@
-from models import Product, RentalRate, LaborFTE
+from models import Census, RentalRate, LaborFTE
 
 def main():
     # Set initial parameters
@@ -319,20 +319,21 @@ def main():
 
 
     # Create a Product object for each product type
-    products = {
-        product_type: Product(
+    censuses = {
+        census_type: Census(
             start_date=start_date,
-            total_units=total_units_input[product_type],
-            occupied_units=occupied_units_input[product_type],
-            occupancy_cap=occupancy_cap_input[product_type],
-            second_person_percentage=second_person_percentage_input[product_type],
+            total_units=total_units_input[census_type],
+            occupied_units=occupied_units_input[census_type],
+            occupancy_cap=occupancy_cap_input[census_type],
+            second_person_percentage=second_person_percentage_input[census_type],
         )
-        for product_type in ['IL', 'AL', 'MC']
+        for census_type in ['IL', 'AL', 'MC']
     }
 
     # Populate the occupancy projection for each product type
-    for product in products.values():
-        product.populate_projection()
+    for census in censuses.values():
+        census.populate_projection()
+
 
     # Create a RentalRate object for each product type
     rental_rates = {
@@ -352,9 +353,10 @@ def main():
     # Create a LaborFTE object
     labor_fte = LaborFTE(
         start_date=start_date,
-        products=products,
+        censuses=censuses,
         staffing_patterns=staffing_patterns
     )
+
 
     # Populate the FTE projection
     labor_fte.populate_fte_projection()
@@ -365,21 +367,22 @@ def main():
 
     # As an example, print the first few rows of the occupancy, rate and FTE projections for each product type
 
-    for product_type in ['IL', 'AL', 'MC']:
-        print(f"\n{product_type} Occupancy Projection:")
-        occupancy_projection = products[product_type].get_projection()
+    for census_type in ['IL', 'AL', 'MC']:
+        print(f"\n{census_type} Occupancy Projection:")
+        occupancy_projection = censuses[census_type].get_projection()
         print(occupancy_projection.head())
-        occupancy_projection.to_csv(f"{product_type}_occupancy_projection.csv", index=False)
+
+        #occupancy_projection.to_csv(f"{product_type}_occupancy_projection.csv", index=False)
         
-        print(f"\n{product_type} Rate Projection:")
-        rate_projection = rental_rates[product_type].get_rate_projection()
+        print(f"\n{census_type} Rate Projection:")
+        rate_projection = rental_rates[census_type].get_rate_projection()
         print(rate_projection.head())
-        rate_projection.to_csv(f"{product_type}_rate_projection.csv", index=False)
+        #rate_projection.to_csv(f"{product_type}_rate_projection.csv", index=False)
 
     print("\nFTE Projection:")
     fte_projection = labor_fte.get_fte_projection()
     print(fte_projection.head())
-    fte_projection.to_csv("fte_projection.csv", index=False)
+    #fte_projection.to_csv("fte_projection.csv", index=False)
 
 
 if __name__ == '__main__':
