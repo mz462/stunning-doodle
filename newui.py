@@ -12,8 +12,8 @@ for census_type in census_types:
     start_date = st.sidebar.date_input(f"{census_type} Start Date")
     total_units = st.sidebar.number_input(f"{census_type} Total Units", min_value=0)
     occupied_units = st.sidebar.number_input(f"{census_type} Occupied Units", min_value=0, max_value=total_units)
-    occupancy_cap = st.sidebar.slider(f"{census_type} Occupancy Cap", min_value=0.0, max_value=1.0, step=0.01)
-    second_person_percentage = st.sidebar.slider(f"{census_type} Second Person Percentage", min_value=0.0, max_value=1.0, step=0.01)
+    occupancy_cap = st.sidebar.slider(f"{census_type} Occupancy Cap", min_value=0.85, max_value=1.0, step=0.01)
+    second_person_percentage = st.sidebar.slider(f"{census_type} Second Person Percentage", min_value=0.0, max_value=0.5, step=0.01)
 
     if st.sidebar.button(f"Create {census_type} Census"):
         census = Census(start_date, total_units, occupied_units, occupancy_cap, second_person_percentage, census_type)
