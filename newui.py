@@ -1,5 +1,5 @@
 import streamlit as st
-from main import Census
+from models import Census
 
 st.sidebar.title("Census Assumptions")
 
